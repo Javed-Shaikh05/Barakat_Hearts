@@ -1,8 +1,15 @@
-const { storage } = require("../server/storage");
-
 module.exports = async (req, res) => {
   try {
-    const stats = await storage.getUserStats();
+    // Return mock stats for testing
+    const stats = {
+      id: "user-1",
+      totalHearts: 247,
+      currentStreak: 12,
+      lastVisit: new Date(),
+      messagesViewed: 142,
+      favoritesCount: 8,
+      lastHeartIncrement: new Date(),
+    };
     res.json(stats);
   } catch (error) {
     console.error("Error in /api/stats:", error);

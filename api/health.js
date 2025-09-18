@@ -1,5 +1,3 @@
-const { storage } = require("../server/storage");
-
 module.exports = async (req, res) => {
   try {
     const databaseUrl =

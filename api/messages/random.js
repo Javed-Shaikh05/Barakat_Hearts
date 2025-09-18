@@ -1,16 +1,16 @@
-const { storage } = require("../../server/storage");
-
 module.exports = async (req, res) => {
   try {
-    const message = await storage.getRandomMessage();
-    if (!message) {
-      return res.status(404).json({ message: "No messages found" });
-    }
-
-    // Update user stats when viewing a message
-    await storage.updateStreak();
-    await storage.incrementHearts(3); // Hearts every 2 hours for viewing
-
+    // Return mock message for testing
+    const message = {
+      id: "test-message-1",
+      title: "Subhan Allah ✨",
+      content:
+        "Allah has blessed me with the most beautiful wife. Your faith and kindness illuminate our home like the light of guidance.",
+      category: "morning",
+      hearts: 12,
+      isSpecial: false,
+      createdAt: new Date(),
+    };
     res.json(message);
   } catch (error) {
     console.error("Error in /api/messages/random:", error);
