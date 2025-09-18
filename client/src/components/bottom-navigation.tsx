@@ -17,7 +17,7 @@ export default function BottomNavigation({ activeTab, onTabChange, onCreateMessa
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-romantic-blush z-20" data-testid="bottom-navigation">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-emerald-200 z-20" data-testid="bottom-navigation">
       <div className="max-w-4xl mx-auto px-4 py-3">
         <div className="flex items-center justify-around">
           {navItems.map((item) => {
@@ -29,19 +29,19 @@ export default function BottomNavigation({ activeTab, onTabChange, onCreateMessa
                 key={item.id}
                 className={`flex flex-col items-center space-y-1 transition-all ${
                   isActive 
-                    ? "text-romantic-pink" 
-                    : "text-romantic-grey opacity-60 hover:text-romantic-pink hover:opacity-100"
+                    ? "text-emerald-600" 
+                    : "text-emerald-700 opacity-60 hover:text-emerald-600 hover:opacity-100"
                 }`}
                 onClick={() => item.action ? item.action() : onTabChange(item.id)}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 data-testid={`nav-${item.id}`}
               >
-                <Icon className="w-6 h-6" />
-                <span className="text-xs font-medium">{item.label}</span>
+                <Icon className="w-5 h-5 md:w-6 md:h-6" />
+                <span className="text-xs md:text-sm font-medium">{item.label}</span>
                 {isActive && (
                   <motion.div
-                    className="w-1 h-1 bg-romantic-pink rounded-full"
+                    className="w-1 h-1 bg-emerald-600 rounded-full"
                     layoutId="activeTab"
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   />
