@@ -1,6 +1,6 @@
 import { type Message, type InsertMessage, type UserStats, type InsertUserStats, type Favorite, type InsertFavorite, type Achievement, type InsertAchievement, messages, userStats, favorites, achievements } from "@shared/schema";
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import pg from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
 import { eq, desc } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
@@ -294,13 +294,21 @@ export class MemStorage implements IStorage {
 
 export class DatabaseStorage implements IStorage {
   private db;
+  private pool;
   private initialized = false;
 
   constructor() {
     // Use Supabase URL in production, fallback to local for development
-    const databaseUrl = process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL!;
-    const sql = neon(databaseUrl);
-    this.db = drizzle(sql);
+    const databaseUrl = process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL;
+    if (!databaseUrl) {
+      throw new Error("DATABASE_URL or SUPABASE_DATABASE_URL is required");
+    }
+    
+    this.pool = new pg.Pool({
+      connectionString: databaseUrl,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    });
+    this.db = drizzle(this.pool);
   }
 
   private async ensureInitialized() {
@@ -583,4 +591,18 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+// Create storage instance with fallback to MemStorage if no database URL
+export const storage = (() => {
+  const databaseUrl = process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL;
+  if (databaseUrl) {
+    try {
+      return new DatabaseStorage();
+    } catch (error) {
+      console.warn('Failed to initialize DatabaseStorage, falling back to MemStorage:', error);
+      return new MemStorage();
+    }
+  } else {
+    console.warn('No DATABASE_URL found, using MemStorage');
+    return new MemStorage();
+  }
+})();
