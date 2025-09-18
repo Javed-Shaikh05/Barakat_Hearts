@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
 import { Heart, Star, Gem } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import type { Message } from "@shared/schema";
 
 export default function RecentMessages() {
-  const { data: messages, isLoading } = useQuery({
-    queryKey: ['/api/messages/recent'],
+  const { data: messages, isLoading } = useQuery<Message[]>({
+    queryKey: ["/api/messages/recent"],
   });
 
   const getIcon = (category: string, isSpecial: boolean) => {
@@ -26,7 +27,10 @@ export default function RecentMessages() {
           </h2>
           <div className="grid gap-4">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="glass-effect rounded-xl p-4 flex items-start space-x-4 animate-pulse">
+              <div
+                key={i}
+                className="glass-effect rounded-xl p-4 flex items-start space-x-4 animate-pulse"
+              >
                 <div className="w-10 h-10 bg-gray-200 rounded-full flex-shrink-0"></div>
                 <div className="flex-1">
                   <div className="h-5 bg-gray-200 rounded mb-2 w-3/4"></div>
@@ -61,12 +65,15 @@ export default function RecentMessages() {
   }
 
   return (
-    <section className="relative z-10 px-4 md:px-6 pb-8" data-testid="recent-messages">
+    <section
+      className="relative z-10 px-4 md:px-6 pb-8"
+      data-testid="recent-messages"
+    >
       <div className="max-w-4xl mx-auto">
         <h2 className="font-serif text-2xl font-semibold text-romantic-grey mb-6 text-center">
           Recent Love Notes
         </h2>
-        
+
         <div className="grid gap-4">
           {messages.map((message, index) => (
             <motion.div
@@ -82,27 +89,41 @@ export default function RecentMessages() {
                 {getIcon(message.category, message.isSpecial || false)}
               </div>
               <div className="flex-1">
-                <h4 className="font-medium text-romantic-grey mb-1" data-testid={`message-title-${message.id}`}>
+                <h4
+                  className="font-medium text-romantic-grey mb-1"
+                  data-testid={`message-title-${message.id}`}
+                >
                   {message.title}
                 </h4>
-                <p className="text-sm text-romantic-grey opacity-75 line-clamp-2 mb-2" data-testid={`message-preview-${message.id}`}>
+                <p
+                  className="text-sm text-romantic-grey opacity-75 line-clamp-2 mb-2"
+                  data-testid={`message-preview-${message.id}`}
+                >
                   {message.content.slice(0, 80)}...
                 </p>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-romantic-grey opacity-60" data-testid={`message-date-${message.id}`}>
-                    {new Date(message.createdAt!).toLocaleDateString('en-US', {
-                      weekday: 'long',
-                      hour: 'numeric',
-                      minute: '2-digit',
-                      hour12: true
+                  <span
+                    className="text-xs text-romantic-grey opacity-60"
+                    data-testid={`message-date-${message.id}`}
+                  >
+                    {new Date(message.createdAt!).toLocaleDateString("en-US", {
+                      weekday: "long",
+                      hour: "numeric",
+                      minute: "2-digit",
+                      hour12: true,
                     })}
                   </span>
                   <div className="flex items-center space-x-1">
                     <Heart className="w-3 h-3 text-romantic-heart fill-current" />
-                    <span className="text-xs text-romantic-grey" data-testid={`message-hearts-${message.id}`}>
+                    <span
+                      className="text-xs text-romantic-grey"
+                      data-testid={`message-hearts-${message.id}`}
+                    >
                       +{message.hearts}
                     </span>
-                    {message.isSpecial && <Star className="w-3 h-3 text-yellow-400 fill-current ml-2" />}
+                    {message.isSpecial && (
+                      <Star className="w-3 h-3 text-yellow-400 fill-current ml-2" />
+                    )}
                   </div>
                 </div>
               </div>

@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
 import { Flame, Heart } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import type { UserStats } from "@shared/schema";
 
 export default function GameificationSection() {
-  const { data: userStats, isLoading } = useQuery({
+  const { data: userStats, isLoading } = useQuery<UserStats>({
     queryKey: ['/api/stats'],
   });
 

@@ -1,7 +1,20 @@
-import { type Message, type InsertMessage, type UserStats, type InsertUserStats, type Favorite, type InsertFavorite, type Achievement, type InsertAchievement, messages, userStats, favorites, achievements } from "@shared/schema";
+import {
+  type Message,
+  type InsertMessage,
+  type UserStats,
+  type InsertUserStats,
+  type Favorite,
+  type InsertFavorite,
+  type Achievement,
+  type InsertAchievement,
+  messages,
+  userStats,
+  favorites,
+  achievements,
+} from "@shared/schema";
 import pg from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -11,18 +24,18 @@ export interface IStorage {
   getAllMessages(): Promise<Message[]>;
   getRecentMessages(limit?: number): Promise<Message[]>;
   createMessage(message: InsertMessage): Promise<Message>;
-  
+
   // User Stats
   getUserStats(): Promise<UserStats>;
   updateUserStats(stats: Partial<UserStats>): Promise<UserStats>;
   incrementHearts(amount: number): Promise<UserStats>;
   updateStreak(): Promise<UserStats>;
-  
+
   // Favorites
   addToFavorites(messageId: string): Promise<Favorite>;
   getFavorites(): Promise<Favorite[]>;
   removeFavorite(messageId: string): Promise<void>;
-  
+
   // Achievements
   getAchievements(): Promise<Achievement[]>;
   unlockAchievement(name: string): Promise<Achievement | undefined>;
@@ -54,70 +67,80 @@ export class MemStorage implements IStorage {
     const islamicMessages: InsertMessage[] = [
       {
         title: "Subhan Allah ✨",
-        content: "Allah has blessed me with the most beautiful wife. Your faith and kindness illuminate our home like the light of guidance.",
+        content:
+          "Allah has blessed me with the most beautiful wife. Your faith and kindness illuminate our home like the light of guidance.",
         category: "morning",
         hearts: 12,
         isSpecial: false,
       },
       {
         title: "Dua for My Beloved",
-        content: "May Allah grant you happiness in both worlds and make you among the righteous. Your smile is a reflection of Allah's countless blessings upon us.",
+        content:
+          "May Allah grant you happiness in both worlds and make you among the righteous. Your smile is a reflection of Allah's countless blessings upon us.",
         category: "dua",
         hearts: 15,
         isSpecial: true,
       },
       {
         title: "Fi Amanillah",
-        content: "When we are apart, I place you in Allah's protection. Distance cannot diminish the bond that Allah has created between our hearts.",
+        content:
+          "When we are apart, I place you in Allah's protection. Distance cannot diminish the bond that Allah has created between our hearts.",
         category: "missing",
         hearts: 8,
         isSpecial: false,
       },
       {
         title: "Alhamdulillahi Rabbil Alameen 💎",
-        content: "All praise is due to Allah who blessed me with a wife who is my partner in this life and the next. You complete half of my deen.",
+        content:
+          "All praise is due to Allah who blessed me with a wife who is my partner in this life and the next. You complete half of my deen.",
         category: "gratitude",
         hearts: 18,
         isSpecial: true,
       },
       {
         title: "Barakallahu laki",
-        content: "May Allah bless you, my dear wife. You are the coolness of my eyes and the tranquility of my heart, just as the Prophet ﷺ taught us.",
+        content:
+          "May Allah bless you, my dear wife. You are the coolness of my eyes and the tranquility of my heart, just as the Prophet ﷺ taught us.",
         category: "blessing",
         hearts: 12,
         isSpecial: false,
       },
       {
         title: "Lailat Saeedah",
-        content: "As you sleep tonight, I make dua that Allah grants you peaceful dreams and protection. You are my amanah from Allah.",
+        content:
+          "As you sleep tonight, I make dua that Allah grants you peaceful dreams and protection. You are my amanah from Allah.",
         category: "goodnight",
         hearts: 10,
         isSpecial: false,
       },
       {
         title: "Always in My Dua 💕",
-        content: "In every sujood, you are remembered. In every du'a, you are mentioned. May Allah keep us together in Jannah.",
+        content:
+          "In every sujood, you are remembered. In every du'a, you are mentioned. May Allah keep us together in Jannah.",
         category: "remembrance",
         hearts: 14,
         isSpecial: false,
       },
       {
         title: "Our Journey to Jannah",
-        content: "Together we walk the path of righteousness. May Allah make our love a means of drawing closer to Him and earning His pleasure.",
+        content:
+          "Together we walk the path of righteousness. May Allah make our love a means of drawing closer to Him and earning His pleasure.",
         category: "future",
         hearts: 16,
         isSpecial: true,
       },
       {
         title: "Mashallah Tabarakallah",
-        content: "Allah has made you beautiful inside and out. Your taqwa and good character make you more precious than any treasure in this world.",
+        content:
+          "Allah has made you beautiful inside and out. Your taqwa and good character make you more precious than any treasure in this world.",
         category: "appreciation",
         hearts: 13,
         isSpecial: false,
       },
       {
         title: "Bismillah",
-        content: "With the name of Allah, we begin each day together. May He guide our steps and bless our marriage with His divine love.",
+        content:
+          "With the name of Allah, we begin each day together. May He guide our steps and bless our marriage with His divine love.",
         category: "morning",
         hearts: 11,
         isSpecial: false,
@@ -125,7 +148,7 @@ export class MemStorage implements IStorage {
     ];
 
     // Convert to full Message objects
-    this.messages = islamicMessages.map(msg => ({
+    this.messages = islamicMessages.map((msg) => ({
       id: randomUUID(),
       ...msg,
       hearts: msg.hearts || 0,
@@ -175,7 +198,7 @@ export class MemStorage implements IStorage {
 
   async getMessageById(id: string): Promise<Message | undefined> {
     await this.ensureInitialized();
-    return this.messages.find(m => m.id === id);
+    return this.messages.find((m) => m.id === id);
   }
 
   async getAllMessages(): Promise<Message[]> {
@@ -186,7 +209,9 @@ export class MemStorage implements IStorage {
   async getRecentMessages(limit: number = 10): Promise<Message[]> {
     await this.ensureInitialized();
     return this.messages
-      .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0))
+      .sort(
+        (a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0)
+      )
       .slice(0, limit);
   }
 
@@ -218,16 +243,17 @@ export class MemStorage implements IStorage {
     await this.ensureInitialized();
     const now = new Date();
     const lastIncrement = this.userStats.lastHeartIncrement;
-    
+
     // Check if 2 hours have passed since last increment
     if (lastIncrement) {
-      const hoursSinceLastIncrement = (now.getTime() - lastIncrement.getTime()) / (1000 * 60 * 60);
+      const hoursSinceLastIncrement =
+        (now.getTime() - lastIncrement.getTime()) / (1000 * 60 * 60);
       if (hoursSinceLastIncrement < 2) {
         // Not enough time has passed, return existing stats
         return { ...this.userStats };
       }
     }
-    
+
     // Update hearts and last increment time
     this.userStats.totalHearts = (this.userStats.totalHearts || 0) + amount;
     this.userStats.lastHeartIncrement = now;
@@ -238,9 +264,11 @@ export class MemStorage implements IStorage {
     await this.ensureInitialized();
     const now = new Date();
     const lastVisit = this.userStats.lastVisit;
-    
+
     if (lastVisit) {
-      const daysSinceLastVisit = Math.floor((now.getTime() - lastVisit.getTime()) / (1000 * 60 * 60 * 24));
+      const daysSinceLastVisit = Math.floor(
+        (now.getTime() - lastVisit.getTime()) / (1000 * 60 * 60 * 24)
+      );
       if (daysSinceLastVisit === 1) {
         // Consecutive day, increment streak
         this.userStats.currentStreak = (this.userStats.currentStreak || 0) + 1;
@@ -252,7 +280,7 @@ export class MemStorage implements IStorage {
     } else {
       this.userStats.currentStreak = 1;
     }
-    
+
     this.userStats.lastVisit = now;
     return { ...this.userStats };
   }
@@ -276,7 +304,7 @@ export class MemStorage implements IStorage {
 
   async removeFavorite(messageId: string): Promise<void> {
     await this.ensureInitialized();
-    this.favorites = this.favorites.filter(f => f.messageId !== messageId);
+    this.favorites = this.favorites.filter((f) => f.messageId !== messageId);
     this.userStats.favoritesCount = this.favorites.length;
   }
 
@@ -287,7 +315,9 @@ export class MemStorage implements IStorage {
 
   async unlockAchievement(name: string): Promise<Achievement | undefined> {
     await this.ensureInitialized();
-    const achievement = this.achievements.find(a => a.name === name && !a.unlockedAt);
+    const achievement = this.achievements.find(
+      (a) => a.name === name && !a.unlockedAt
+    );
     if (achievement) {
       achievement.unlockedAt = new Date();
       return { ...achievement };
@@ -303,14 +333,18 @@ export class DatabaseStorage implements IStorage {
 
   constructor() {
     // Use Supabase URL in production, fallback to local for development
-    const databaseUrl = process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL;
+    const databaseUrl =
+      process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL;
     if (!databaseUrl) {
       throw new Error("DATABASE_URL or SUPABASE_DATABASE_URL is required");
     }
-    
+
     this.pool = new pg.Pool({
       connectionString: databaseUrl,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+      ssl:
+        process.env.NODE_ENV === "production"
+          ? { rejectUnauthorized: false }
+          : false,
     });
     this.db = drizzle(this.pool);
   }
@@ -321,79 +355,147 @@ export class DatabaseStorage implements IStorage {
     this.initialized = true;
   }
 
+  private async ensureTablesExist() {
+    try {
+      // Try to create tables if they don't exist
+      await this.db.execute(sql`
+        CREATE TABLE IF NOT EXISTS messages (
+          id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+          title TEXT NOT NULL,
+          content TEXT NOT NULL,
+          category TEXT NOT NULL,
+          hearts INTEGER DEFAULT 0,
+          is_special BOOLEAN DEFAULT false,
+          created_at TIMESTAMP DEFAULT NOW()
+        );
+      `);
+
+      await this.db.execute(sql`
+        CREATE TABLE IF NOT EXISTS user_stats (
+          id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+          total_hearts INTEGER DEFAULT 0,
+          current_streak INTEGER DEFAULT 0,
+          last_visit TIMESTAMP,
+          messages_viewed INTEGER DEFAULT 0,
+          favorites_count INTEGER DEFAULT 0,
+          last_heart_increment TIMESTAMP DEFAULT NOW()
+        );
+      `);
+
+      await this.db.execute(sql`
+        CREATE TABLE IF NOT EXISTS favorites (
+          id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+          message_id VARCHAR REFERENCES messages(id),
+          created_at TIMESTAMP DEFAULT NOW()
+        );
+      `);
+
+      await this.db.execute(sql`
+        CREATE TABLE IF NOT EXISTS achievements (
+          id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+          name TEXT NOT NULL,
+          description TEXT NOT NULL,
+          icon TEXT NOT NULL,
+          unlocked_at TIMESTAMP
+        );
+      `);
+    } catch (error) {
+      console.error("Error creating tables:", error);
+      // Don't throw here, let the app continue with existing tables
+    }
+  }
+
   private async initializeData() {
-    // Check if we already have data
-    const existingMessages = await this.db.select().from(messages).limit(1);
-    if (existingMessages.length > 0) return;
+    try {
+      // First, ensure tables exist by trying to create them
+      await this.ensureTablesExist();
+
+      // Check if we already have data
+      const existingMessages = await this.db.select().from(messages).limit(1);
+      if (existingMessages.length > 0) return;
+    } catch (error) {
+      console.error("Failed to initialize database:", error);
+      throw error;
+    }
 
     // Initialize with Islamic messages and duas
     const islamicMessages = [
       {
         title: "Subhan Allah ✨",
-        content: "Allah has blessed me with the most beautiful wife. Your faith and kindness illuminate our home like the light of guidance.",
+        content:
+          "Allah has blessed me with the most beautiful wife. Your faith and kindness illuminate our home like the light of guidance.",
         category: "morning",
         hearts: 12,
         isSpecial: false,
       },
       {
         title: "Dua for My Beloved",
-        content: "May Allah grant you happiness in both worlds and make you among the righteous. Your smile is a reflection of Allah's countless blessings upon us.",
+        content:
+          "May Allah grant you happiness in both worlds and make you among the righteous. Your smile is a reflection of Allah's countless blessings upon us.",
         category: "dua",
         hearts: 15,
         isSpecial: true,
       },
       {
         title: "Fi Amanillah",
-        content: "When we are apart, I place you in Allah's protection. Distance cannot diminish the bond that Allah has created between our hearts.",
+        content:
+          "When we are apart, I place you in Allah's protection. Distance cannot diminish the bond that Allah has created between our hearts.",
         category: "missing",
         hearts: 8,
         isSpecial: false,
       },
       {
         title: "Alhamdulillahi Rabbil Alameen 💎",
-        content: "All praise is due to Allah who blessed me with a wife who is my partner in this life and the next. You complete half of my deen.",
+        content:
+          "All praise is due to Allah who blessed me with a wife who is my partner in this life and the next. You complete half of my deen.",
         category: "gratitude",
         hearts: 18,
         isSpecial: true,
       },
       {
         title: "Barakallahu laki",
-        content: "May Allah bless you, my dear wife. You are the coolness of my eyes and the tranquility of my heart, just as the Prophet ﷺ taught us.",
+        content:
+          "May Allah bless you, my dear wife. You are the coolness of my eyes and the tranquility of my heart, just as the Prophet ﷺ taught us.",
         category: "blessing",
         hearts: 12,
         isSpecial: false,
       },
       {
         title: "Lailat Saeedah",
-        content: "As you sleep tonight, I make dua that Allah grants you peaceful dreams and protection. You are my amanah from Allah.",
+        content:
+          "As you sleep tonight, I make dua that Allah grants you peaceful dreams and protection. You are my amanah from Allah.",
         category: "goodnight",
         hearts: 10,
         isSpecial: false,
       },
       {
         title: "Always in My Dua 💕",
-        content: "In every sujood, you are remembered. In every du'a, you are mentioned. May Allah keep us together in Jannah.",
+        content:
+          "In every sujood, you are remembered. In every du'a, you are mentioned. May Allah keep us together in Jannah.",
         category: "remembrance",
         hearts: 14,
         isSpecial: false,
       },
       {
         title: "Our Journey to Jannah",
-        content: "Together we walk the path of righteousness. May Allah make our love a means of drawing closer to Him and earning His pleasure.",
+        content:
+          "Together we walk the path of righteousness. May Allah make our love a means of drawing closer to Him and earning His pleasure.",
         category: "future",
         hearts: 16,
         isSpecial: true,
       },
       {
         title: "Mashallah Tabarakallah",
-        content: "Allah has made you beautiful inside and out. Your taqwa and good character make you more precious than any treasure in this world.",
+        content:
+          "Allah has made you beautiful inside and out. Your taqwa and good character make you more precious than any treasure in this world.",
         category: "appreciation",
         hearts: 13,
         isSpecial: false,
       },
       {
         title: "Bismillah",
-        content: "With the name of Allah, we begin each day together. May He guide our steps and bless our marriage with His divine love.",
+        content:
+          "With the name of Allah, we begin each day together. May He guide our steps and bless our marriage with His divine love.",
         category: "morning",
         hearts: 11,
         isSpecial: false,
@@ -448,50 +550,67 @@ export class DatabaseStorage implements IStorage {
     await this.ensureInitialized();
     const allMessages = await this.db.select().from(messages);
     if (allMessages.length === 0) return undefined;
-    
+
     const randomIndex = Math.floor(Math.random() * allMessages.length);
     return allMessages[randomIndex];
   }
 
   async getMessageById(id: string): Promise<Message | undefined> {
     await this.ensureInitialized();
-    const result = await this.db.select().from(messages).where(eq(messages.id, id)).limit(1);
+    const result = await this.db
+      .select()
+      .from(messages)
+      .where(eq(messages.id, id))
+      .limit(1);
     return result[0];
   }
 
   async getAllMessages(): Promise<Message[]> {
     await this.ensureInitialized();
-    return await this.db.select().from(messages).orderBy(desc(messages.createdAt));
+    return await this.db
+      .select()
+      .from(messages)
+      .orderBy(desc(messages.createdAt));
   }
 
   async getRecentMessages(limit: number = 5): Promise<Message[]> {
     await this.ensureInitialized();
-    return await this.db.select().from(messages).orderBy(desc(messages.createdAt)).limit(limit);
+    return await this.db
+      .select()
+      .from(messages)
+      .orderBy(desc(messages.createdAt))
+      .limit(limit);
   }
 
   async createMessage(insertMessage: InsertMessage): Promise<Message> {
     await this.ensureInitialized();
-    const result = await this.db.insert(messages).values(insertMessage).returning();
+    const result = await this.db
+      .insert(messages)
+      .values(insertMessage)
+      .returning();
     return result[0];
   }
 
   async getUserStats(): Promise<UserStats> {
     await this.ensureInitialized();
     const result = await this.db.select().from(userStats).limit(1);
-    return result[0] || {
-      id: randomUUID(),
-      totalHearts: 0,
-      currentStreak: 0,
-      lastVisit: null,
-      messagesViewed: 0,
-      favoritesCount: 0,
-    };
+    return (
+      result[0] || {
+        id: randomUUID(),
+        totalHearts: 0,
+        currentStreak: 0,
+        lastVisit: null,
+        messagesViewed: 0,
+        favoritesCount: 0,
+      }
+    );
   }
 
   async updateUserStats(stats: Partial<UserStats>): Promise<UserStats> {
     await this.ensureInitialized();
     const existing = await this.getUserStats();
-    const result = await this.db.update(userStats)
+    const result = await this.db
+      .update(userStats)
       .set(stats)
       .where(eq(userStats.id, existing.id))
       .returning();
@@ -503,20 +622,21 @@ export class DatabaseStorage implements IStorage {
     const existing = await this.getUserStats();
     const now = new Date();
     const lastIncrement = existing.lastHeartIncrement;
-    
+
     // Check if 2 hours have passed since last increment
     if (lastIncrement) {
-      const hoursSinceLastIncrement = (now.getTime() - lastIncrement.getTime()) / (1000 * 60 * 60);
+      const hoursSinceLastIncrement =
+        (now.getTime() - lastIncrement.getTime()) / (1000 * 60 * 60);
       if (hoursSinceLastIncrement < 2) {
         // Not enough time has passed, return existing stats
         return existing;
       }
     }
-    
+
     // Update hearts and last increment time
     return await this.updateUserStats({
       totalHearts: (existing.totalHearts || 0) + amount,
-      lastHeartIncrement: now
+      lastHeartIncrement: now,
     });
   }
 
@@ -525,12 +645,14 @@ export class DatabaseStorage implements IStorage {
     const now = new Date();
     const existing = await this.getUserStats();
     const lastVisit = existing.lastVisit;
-    
+
     let newStreak = existing.currentStreak || 0;
-    
+
     if (lastVisit) {
-      const daysSinceLastVisit = Math.floor((now.getTime() - lastVisit.getTime()) / (1000 * 60 * 60 * 24));
-      
+      const daysSinceLastVisit = Math.floor(
+        (now.getTime() - lastVisit.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
       if (daysSinceLastVisit === 1) {
         // Consecutive day - increment streak
         newStreak = (existing.currentStreak || 0) + 1;
@@ -543,40 +665,46 @@ export class DatabaseStorage implements IStorage {
       // First visit
       newStreak = 1;
     }
-    
+
     return await this.updateUserStats({
       currentStreak: newStreak,
-      lastVisit: now
+      lastVisit: now,
     });
   }
 
   async addToFavorites(messageId: string): Promise<Favorite> {
     await this.ensureInitialized();
-    const result = await this.db.insert(favorites).values({ messageId }).returning();
+    const result = await this.db
+      .insert(favorites)
+      .values({ messageId })
+      .returning();
     const favorite = result[0];
-    
+
     // Update favorites count
     const existing = await this.getUserStats();
     await this.updateUserStats({
-      favoritesCount: (existing.favoritesCount || 0) + 1
+      favoritesCount: (existing.favoritesCount || 0) + 1,
     });
-    
+
     return favorite;
   }
 
   async getFavorites(): Promise<Favorite[]> {
     await this.ensureInitialized();
-    return await this.db.select().from(favorites).orderBy(desc(favorites.createdAt));
+    return await this.db
+      .select()
+      .from(favorites)
+      .orderBy(desc(favorites.createdAt));
   }
 
   async removeFavorite(messageId: string): Promise<void> {
     await this.ensureInitialized();
     await this.db.delete(favorites).where(eq(favorites.messageId, messageId));
-    
+
     // Update favorites count
     const existing = await this.getUserStats();
     await this.updateUserStats({
-      favoritesCount: Math.max((existing.favoritesCount || 0) - 1, 0)
+      favoritesCount: Math.max((existing.favoritesCount || 0) - 1, 0),
     });
   }
 
@@ -587,7 +715,8 @@ export class DatabaseStorage implements IStorage {
 
   async unlockAchievement(name: string): Promise<Achievement | undefined> {
     await this.ensureInitialized();
-    const result = await this.db.update(achievements)
+    const result = await this.db
+      .update(achievements)
       .set({ unlockedAt: new Date() })
       .where(eq(achievements.name, name))
       .returning();
@@ -597,16 +726,24 @@ export class DatabaseStorage implements IStorage {
 
 // Create storage instance with fallback to MemStorage if no database URL
 export const storage = (() => {
-  const databaseUrl = process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL;
+  const databaseUrl =
+    process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL;
   if (databaseUrl) {
     try {
+      console.log(
+        "Initializing DatabaseStorage with URL:",
+        databaseUrl.substring(0, 20) + "..."
+      );
       return new DatabaseStorage();
     } catch (error) {
-      console.warn('Failed to initialize DatabaseStorage, falling back to MemStorage:', error);
+      console.warn(
+        "Failed to initialize DatabaseStorage, falling back to MemStorage:",
+        error
+      );
       return new MemStorage();
     }
   } else {
-    console.warn('No DATABASE_URL found, using MemStorage');
+    console.warn("No DATABASE_URL found, using MemStorage");
     return new MemStorage();
   }
 })();
