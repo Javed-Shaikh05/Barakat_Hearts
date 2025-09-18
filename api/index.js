@@ -1,3 +1,5 @@
+const { staticStorage } = require("../server/static-data");
+
 module.exports = async (req, res) => {
   // Enable CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -49,15 +51,7 @@ module.exports = async (req, res) => {
 
     // Stats endpoint
     if (url === "/api/stats" || url === "/api/index/stats") {
-      const stats = {
-        id: "user-1",
-        totalHearts: 247,
-        currentStreak: 12,
-        lastVisit: new Date(),
-        messagesViewed: 142,
-        favoritesCount: 8,
-        lastHeartIncrement: new Date(),
-      };
+      const stats = await staticStorage.getUserStats();
       return res.json(stats);
     }
 
@@ -66,16 +60,15 @@ module.exports = async (req, res) => {
       url === "/api/messages/random" ||
       url === "/api/index/messages/random"
     ) {
-      const message = {
-        id: "test-message-1",
-        title: "Subhan Allah ✨",
-        content:
-          "Allah has blessed me with the most beautiful wife. Your faith and kindness illuminate our home like the light of guidance.",
-        category: "morning",
-        hearts: 12,
-        isSpecial: false,
-        createdAt: new Date(),
-      };
+      const message = await staticStorage.getRandomMessage();
+      if (!message) {
+        return res.status(404).json({ message: "No messages found" });
+      }
+      
+      // Update user stats when viewing a message
+      await staticStorage.updateStreak();
+      await staticStorage.incrementHearts(3);
+      
       return res.json(message);
     }
 
@@ -84,29 +77,28 @@ module.exports = async (req, res) => {
       url === "/api/messages/recent" ||
       url === "/api/index/messages/recent"
     ) {
-      const messages = [
-        {
-          id: "test-message-1",
-          title: "Subhan Allah ✨",
-          content:
-            "Allah has blessed me with the most beautiful wife. Your faith and kindness illuminate our home like the light of guidance.",
-          category: "morning",
-          hearts: 12,
-          isSpecial: false,
-          createdAt: new Date(),
-        },
-        {
-          id: "test-message-2",
-          title: "Dua for My Beloved",
-          content:
-            "May Allah grant you happiness in both worlds and make you among the righteous. Your smile is a reflection of Allah's countless blessings upon us.",
-          category: "dua",
-          hearts: 15,
-          isSpecial: true,
-          createdAt: new Date(),
-        },
-      ];
+      const limit = parseInt(req.query.limit) || 5;
+      const messages = await staticStorage.getRecentMessages(limit);
       return res.json(messages);
+    }
+
+    // Favorites endpoint
+    if (url === "/api/favorites" || url === "/api/index/favorites") {
+      if (method === "GET") {
+        const favorites = await staticStorage.getFavorites();
+        return res.json(favorites);
+      }
+      if (method === "POST") {
+        const { messageId } = req.body;
+        const favorite = await staticStorage.addToFavorites(messageId);
+        return res.json(favorite);
+      }
+    }
+
+    // Achievements endpoint
+    if (url === "/api/achievements" || url === "/api/index/achievements") {
+      const achievements = await staticStorage.getAchievements();
+      return res.json(achievements);
     }
 
     // Default response for unmatched routes
@@ -119,6 +111,8 @@ module.exports = async (req, res) => {
         "/api/stats",
         "/api/messages/random",
         "/api/messages/recent",
+        "/api/favorites",
+        "/api/achievements",
       ],
     });
   } catch (error) {
