@@ -16,7 +16,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Update user stats when viewing a message
       await storage.updateStreak();
-      await storage.incrementHearts(3); // Daily hearts for viewing
+      await storage.incrementHearts(3); // Hearts every 2 hours for viewing
       
       res.json(message);
     } catch (error) {
@@ -51,7 +51,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertFavoriteSchema.parse(req.body);
       const favorite = await storage.addToFavorites(validatedData.messageId!);
       
-      // Award hearts for favoriting
+      // Award hearts for favoriting (if 2 hours have passed)
       await storage.incrementHearts(5);
       
       res.json(favorite);
@@ -99,7 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertMessageSchema.parse(req.body);
       const message = await storage.createMessage(validatedData);
       
-      // Award hearts for creating custom message
+      // Award hearts for creating custom message (if 2 hours have passed)
       await storage.incrementHearts(10);
       
       res.json(message);

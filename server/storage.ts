@@ -50,68 +50,82 @@ export class DatabaseStorage implements IStorage {
     const existingMessages = await this.db.select().from(messages).limit(1);
     if (existingMessages.length > 0) return;
 
-    // Initialize with romantic messages
-    const romanticMessages = [
+    // Initialize with Islamic messages and duas
+    const islamicMessages = [
       {
-        title: "Good Morning, Beautiful ✨",
-        content: "Every morning I wake up grateful for another day to love you. Your smile lights up my world brighter than the sun ever could. You are my forever and always, my darling.",
+        title: "Subhan Allah ✨",
+        content: "Allah has blessed me with the most beautiful wife. Your faith and kindness illuminate our home like the light of guidance.",
         category: "morning",
         hearts: 12,
         isSpecial: false,
       },
       {
-        title: "You are my sunshine",
-        content: "Your laughter fills my heart with joy and makes every day brighter than I could have ever imagined. You turn ordinary moments into magical memories.",
-        category: "appreciation",
-        hearts: 5,
-        isSpecial: false,
+        title: "Dua for My Beloved",
+        content: "May Allah grant you happiness in both worlds and make you among the righteous. Your smile is a reflection of Allah's countless blessings upon us.",
+        category: "dua",
+        hearts: 15,
+        isSpecial: true,
       },
       {
-        title: "Missing you terribly",
-        content: "Distance means nothing when someone means everything to you. Every second apart feels like an eternity, but every reunion makes it all worthwhile.",
+        title: "Fi Amanillah",
+        content: "When we are apart, I place you in Allah's protection. Distance cannot diminish the bond that Allah has created between our hearts.",
         category: "missing",
         hearts: 8,
         isSpecial: false,
       },
       {
-        title: "Forever grateful 💎",
-        content: "Thank you for being the most amazing partner I could ever ask for. Your love makes me want to be the best version of myself every single day.",
+        title: "Alhamdulillahi Rabbil Alameen 💎",
+        content: "All praise is due to Allah who blessed me with a wife who is my partner in this life and the next. You complete half of my deen.",
         category: "gratitude",
+        hearts: 18,
+        isSpecial: true,
+      },
+      {
+        title: "Barakallahu laki",
+        content: "May Allah bless you, my dear wife. You are the coolness of my eyes and the tranquility of my heart, just as the Prophet ﷺ taught us.",
+        category: "blessing",
         hearts: 12,
-        isSpecial: true,
-      },
-      {
-        title: "You're my everything",
-        content: "In a world full of temporary things, you are my forever. Your love is the anchor that keeps me grounded and the wings that help me soar.",
-        category: "love",
-        hearts: 15,
         isSpecial: false,
       },
       {
-        title: "Sweet Dreams, My Love",
-        content: "As you close your eyes tonight, know that you are the last thing on my mind and the first when I wake. Dream of us, darling.",
+        title: "Lailat Saeedah",
+        content: "As you sleep tonight, I make dua that Allah grants you peaceful dreams and protection. You are my amanah from Allah.",
         category: "goodnight",
-        hearts: 7,
+        hearts: 10,
         isSpecial: false,
       },
       {
-        title: "Thinking of You 💕",
-        content: "No matter where I am or what I'm doing, you're always on my mind. Your love follows me everywhere like a beautiful, comforting shadow.",
-        category: "thinking",
-        hearts: 9,
+        title: "Always in My Dua 💕",
+        content: "In every sujood, you are remembered. In every du'a, you are mentioned. May Allah keep us together in Jannah.",
+        category: "remembrance",
+        hearts: 14,
         isSpecial: false,
       },
       {
-        title: "Our Love Story",
-        content: "Every day with you is a new chapter in the most beautiful love story ever written. I can't wait to see how our story unfolds.",
+        title: "Our Journey to Jannah",
+        content: "Together we walk the path of righteousness. May Allah make our love a means of drawing closer to Him and earning His pleasure.",
         category: "future",
-        hearts: 11,
+        hearts: 16,
         isSpecial: true,
+      },
+      {
+        title: "Mashallah Tabarakallah",
+        content: "Allah has made you beautiful inside and out. Your taqwa and good character make you more precious than any treasure in this world.",
+        category: "appreciation",
+        hearts: 13,
+        isSpecial: false,
+      },
+      {
+        title: "Bismillah",
+        content: "With the name of Allah, we begin each day together. May He guide our steps and bless our marriage with His divine love.",
+        category: "morning",
+        hearts: 11,
+        isSpecial: false,
       },
     ];
 
     // Insert messages
-    await this.db.insert(messages).values(romanticMessages);
+    await this.db.insert(messages).values(islamicMessages);
 
     // Initialize user stats
     await this.db.insert(userStats).values({
@@ -120,6 +134,7 @@ export class DatabaseStorage implements IStorage {
       lastVisit: new Date(),
       messagesViewed: 142,
       favoritesCount: 8,
+      lastHeartIncrement: new Date(),
     });
 
     // Initialize achievements
@@ -210,8 +225,22 @@ export class DatabaseStorage implements IStorage {
   async incrementHearts(amount: number): Promise<UserStats> {
     await this.ensureInitialized();
     const existing = await this.getUserStats();
+    const now = new Date();
+    const lastIncrement = existing.lastHeartIncrement;
+    
+    // Check if 2 hours have passed since last increment
+    if (lastIncrement) {
+      const hoursSinceLastIncrement = (now.getTime() - lastIncrement.getTime()) / (1000 * 60 * 60);
+      if (hoursSinceLastIncrement < 2) {
+        // Not enough time has passed, return existing stats
+        return existing;
+      }
+    }
+    
+    // Update hearts and last increment time
     return await this.updateUserStats({
-      totalHearts: (existing.totalHearts || 0) + amount
+      totalHearts: (existing.totalHearts || 0) + amount,
+      lastHeartIncrement: now
     });
   }
 

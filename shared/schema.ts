@@ -20,6 +20,7 @@ export const userStats = pgTable("user_stats", {
   lastVisit: timestamp("last_visit"),
   messagesViewed: integer("messages_viewed").default(0),
   favoritesCount: integer("favorites_count").default(0),
+  lastHeartIncrement: timestamp("last_heart_increment").defaultNow(),
 });
 
 export const favorites = pgTable("favorites", {
