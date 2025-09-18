@@ -11,7 +11,8 @@ export default function BottomNavigation({ activeTab, onTabChange }: BottomNavig
     { id: "home", icon: Home, label: "Home" },
     { id: "messages", icon: Mail, label: "Messages" },
     { id: "stats", icon: TrendingUp, label: "Stats" },
-    { id: "love", icon: Heart, label: "Duas" },
+    { id: "duas", icon: Heart, label: "Duas" },
+    { id: "love", icon: Heart, label: "Love" },
   ];
 
   return (

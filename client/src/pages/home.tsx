@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import FloatingHearts from "@/components/floating-hearts";
 import Header from "@/components/header";
 import MainMessageCard from "@/components/main-message-card";
@@ -12,6 +12,14 @@ export default function Home() {
   const [showSurpriseModal, setShowSurpriseModal] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
 
+  useEffect(() => {
+    document.title = "Barakat Hearts - Beautiful Duas and Blessings";
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Beautiful Islamic messages, duas, and blessed moments. Count every barakat-filled day with Islamic wisdom and divine guidance.');
+    }
+  }, []);
+
   const renderTabContent = () => {
     switch (activeTab) {
       case "home":
@@ -20,7 +28,7 @@ export default function Home() {
         return <MainMessageCard onSurpriseUnlock={() => setShowSurpriseModal(true)} />;
       case "stats":
         return <GameificationSection />;
-      case "love":
+      case "duas":
         return (
           <div className="max-w-4xl mx-auto px-4 py-8">
             <div className="text-center">
@@ -54,6 +62,62 @@ export default function Home() {
             </div>
           </div>
         );
+      case "love":
+        return (
+          <div className="max-w-4xl mx-auto px-4 py-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-serif font-bold text-emerald-800 mb-6">
+                💕 Islamic Love & Marriage 💕
+              </h2>
+              <div className="grid gap-6 md:gap-8">
+                <div className="glass-effect rounded-2xl p-6 text-center">
+                  <div className="text-2xl mb-4">💍</div>
+                  <h3 className="text-xl font-semibold text-emerald-800 mb-3">Blessed Union</h3>
+                  <p className="text-emerald-700 opacity-90 leading-relaxed">
+                    "وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً"
+                  </p>
+                  <p className="text-emerald-600 text-sm mt-3 italic">
+                    "And among His signs is that He created for you mates from among yourselves, that you may dwell in tranquility with them, and He has put love and mercy between your hearts."
+                  </p>
+                  <p className="text-emerald-500 text-sm mt-2">- Quran 30:21</p>
+                </div>
+                <div className="glass-effect rounded-2xl p-6 text-center">
+                  <div className="text-2xl mb-4">🌹</div>
+                  <h3 className="text-xl font-semibold text-emerald-800 mb-3">Best to Your Family</h3>
+                  <p className="text-emerald-700 opacity-90 leading-relaxed">
+                    "خَيْرُكُمْ خَيْرُكُمْ لِأَهْلِهِ وَأَنَا خَيْرُكُمْ لِأَهْلِي"
+                  </p>
+                  <p className="text-emerald-600 text-sm mt-3 italic">
+                    "The best of you are those who are best to their family, and I am the best of you to my family."
+                  </p>
+                  <p className="text-emerald-500 text-sm mt-2">- Prophet Muhammad ﷺ (Ibn Majah)</p>
+                </div>
+                <div className="glass-effect rounded-2xl p-6 text-center">
+                  <div className="text-2xl mb-4">🤲</div>
+                  <h3 className="text-xl font-semibold text-emerald-800 mb-3">Dua for Righteous Spouse</h3>
+                  <p className="text-emerald-700 opacity-90 leading-relaxed">
+                    "رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا"
+                  </p>
+                  <p className="text-emerald-600 text-sm mt-3 italic">
+                    "Our Lord, grant us from among our wives and offspring comfort to our eyes and make us an example for the righteous."
+                  </p>
+                  <p className="text-emerald-500 text-sm mt-2">- Quran 25:74</p>
+                </div>
+                <div className="glass-effect rounded-2xl p-6 text-center">
+                  <div className="text-2xl mb-4">❤️</div>
+                  <h3 className="text-xl font-semibold text-emerald-800 mb-3">Perfect in Faith</h3>
+                  <p className="text-emerald-700 opacity-90 leading-relaxed">
+                    "أَكْمَلُ الْمُؤْمِنِينَ إِيمَانًا أَحْسَنُهُمْ خُلُقًا وَخِيَارُكُمْ خِيَارُكُمْ لِنِسَائِهِمْ"
+                  </p>
+                  <p className="text-emerald-600 text-sm mt-3 italic">
+                    "The most perfect of believers in faith are those with the best character, and the best of you are those who are best to their wives."
+                  </p>
+                  <p className="text-emerald-500 text-sm mt-2">- Prophet Muhammad ﷺ (Tirmidhi)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
       default:
         return <IslamicCounter />;
     }
@@ -61,8 +125,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen gradient-bg relative">
-      <title>Barakah Hearts - Beautiful Duas and Blessings</title>
-      <meta name="description" content="Beautiful Islamic messages, duas, and blessed moments. Count every barakah-filled day with Islamic wisdom and divine guidance." />
       
       <FloatingHearts />
       <IslamicWelcomePopup />

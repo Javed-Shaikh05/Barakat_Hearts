@@ -16,7 +16,7 @@ export default function Header() {
               <div className="w-10 h-10 md:w-12 md:h-12 bg-emerald-600 rounded-full flex items-center justify-center animate-heart-beat">
                 <Star className="text-white text-lg md:text-xl" />
               </div>
-              <h1 className="text-xl md:text-2xl font-serif font-bold text-emerald-800">Barakah Hearts</h1>
+              <h1 className="text-xl md:text-2xl font-serif font-bold text-emerald-800">Barakat Hearts</h1>
             </div>
             <div className="flex items-center space-x-4">
               <div className="w-16 h-8 bg-gray-200 rounded-full animate-pulse"></div>
@@ -42,7 +42,7 @@ export default function Header() {
               <Star className="text-white text-lg md:text-xl" />
             </motion.div>
             <h1 className="text-xl md:text-2xl font-serif font-bold text-emerald-800" data-testid="app-title">
-              Barakah Hearts
+              Barakat Hearts
             </h1>
           </div>
           
