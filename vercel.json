@@ -8,8 +8,8 @@
 
   "routes": [
     { "handle": "filesystem" },
-    { "src": "/api/(.*)", "dest": "/dist/index.js" },
-    { "src": "/(.*)", "dest": "/dist/public/index.html" }
+    { "src": "/(.*)", "dest": "/dist/public/index.html" },
+    { "src": "/api/(.*)", "dest": "/dist/index.js" }
   ],
   "env": {
     "NODE_ENV": "production"
