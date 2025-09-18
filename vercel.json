@@ -5,9 +5,7 @@
     { "src": "dist/public/**", "use": "@vercel/static" }
   ],
   "buildCommand": "npm run build",
-  "functions": {
-    "dist/index.js": { "runtime": "nodejs20.x" }
-  },
+
   "routes": [
     { "handle": "filesystem" },
     { "src": "/api/(.*)", "dest": "/dist/index.js" },
