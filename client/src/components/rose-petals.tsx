@@ -15,7 +15,10 @@ interface RosePetalsProps {
   count?: number;
 }
 
-export default function RosePetals({ isVisible = true, count = 12 }: RosePetalsProps) {
+export default function RosePetals({
+  isVisible = true,
+  count = 20,
+}: RosePetalsProps) {
   const [petals, setPetals] = useState<Petal[]>([]);
 
   useEffect(() => {
