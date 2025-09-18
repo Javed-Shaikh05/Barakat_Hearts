@@ -31,32 +31,21 @@ export default function IslamicCounter() {
     return () => clearInterval(interval);
   }, []);
 
-  const CounterCard = ({ value, label, icon: Icon, delay }: { value: number, label: string, icon: any, delay: number }) => (
-    <motion.div
+  const CounterCard = ({ value, label, icon: Icon }: { value: number, label: string, icon: any }) => (
+    <div
       className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 md:p-6 text-center shadow-xl border border-emerald-100"
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.6, ease: "easeOut" }}
-      whileHover={{ scale: 1.02 }}
       data-testid={`counter-${label.toLowerCase()}`}
     >
       <div className="flex items-center justify-center mb-3">
         <Icon className="w-6 h-6 text-emerald-600" />
       </div>
       <div className="text-2xl md:text-4xl font-bold text-emerald-800 mb-2 min-h-[3rem] md:min-h-[4rem] flex items-center justify-center">
-        <motion.span
-          key={`${label}-${value}`}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2, ease: "easeOut" }}
-        >
-          {value.toString().padStart(2, '0')}
-        </motion.span>
+        {value.toString().padStart(2, '0')}
       </div>
       <div className="text-xs md:text-sm text-emerald-600 font-medium">
         {label}
       </div>
-    </motion.div>
+    </div>
   );
 
   return (
@@ -88,25 +77,21 @@ export default function IslamicCounter() {
           value={timeElapsed.days}
           label="Days"
           icon={Calendar}
-          delay={0.2}
         />
         <CounterCard
           value={timeElapsed.hours}
           label="Hours"
           icon={Star}
-          delay={0.4}
         />
         <CounterCard
           value={timeElapsed.minutes}
           label="Minutes"
           icon={Heart}
-          delay={0.6}
         />
         <CounterCard
           value={timeElapsed.seconds}
           label="Seconds"
           icon={Star}
-          delay={0.8}
         />
       </div>
 
