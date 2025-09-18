@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heart, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import RosePetals from "@/components/rose-petals";
 
 export default function IslamicWelcomePopup() {
   const [isVisible, setIsVisible] = useState(false);
@@ -49,13 +50,17 @@ export default function IslamicWelcomePopup() {
   return (
     <AnimatePresence>
       {isVisible && (
-        <motion.div
-          className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 p-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          data-testid="islamic-welcome-popup"
-        >
+        <>
+          {/* Rose petals falling effect */}
+          <RosePetals isVisible={isVisible} count={15} />
+          
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-[55] p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            data-testid="islamic-welcome-popup"
+          >
           <motion.div
             className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl p-6 md:p-8 max-w-sm md:max-w-md w-full text-center relative border-2 border-emerald-200 shadow-2xl"
             initial={{ opacity: 0, scale: 0.7, y: 50 }}
@@ -132,7 +137,8 @@ export default function IslamicWelcomePopup() {
               </Button>
             </motion.div>
           </motion.div>
-        </motion.div>
+          </motion.div>
+        </>
       )}
     </AnimatePresence>
   );

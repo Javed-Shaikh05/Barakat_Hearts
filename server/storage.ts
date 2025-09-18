@@ -128,6 +128,8 @@ export class MemStorage implements IStorage {
     this.messages = islamicMessages.map(msg => ({
       id: randomUUID(),
       ...msg,
+      hearts: msg.hearts || 0,
+      isSpecial: msg.isSpecial || false,
       createdAt: new Date(),
     }));
 
@@ -184,7 +186,7 @@ export class MemStorage implements IStorage {
   async getRecentMessages(limit: number = 10): Promise<Message[]> {
     await this.ensureInitialized();
     return this.messages
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0))
       .slice(0, limit);
   }
 
@@ -193,6 +195,8 @@ export class MemStorage implements IStorage {
     const newMessage: Message = {
       id: randomUUID(),
       ...messageData,
+      hearts: messageData.hearts || 0,
+      isSpecial: messageData.isSpecial || false,
       createdAt: new Date(),
     };
     this.messages.push(newMessage);
