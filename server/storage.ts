@@ -33,7 +33,9 @@ export class DatabaseStorage implements IStorage {
   private initialized = false;
 
   constructor() {
-    const sql = neon(process.env.DATABASE_URL!);
+    // Use Supabase URL in production, fallback to local for development
+    const databaseUrl = process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL!;
+    const sql = neon(databaseUrl);
     this.db = drizzle(sql);
   }
 
