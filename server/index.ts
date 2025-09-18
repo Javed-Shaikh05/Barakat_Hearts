@@ -47,6 +47,12 @@ app.use((req, res, next) => {
     throw err;
   });
 
+  // On Vercel (serverless), do not setup Vite or static middleware here,
+  // and do not start a listener. The exported Express app will be invoked by Vercel.
+  if (process.env.VERCEL) {
+    return;
+  }
+
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
@@ -54,11 +60,6 @@ app.use((req, res, next) => {
     await setupVite(app, server);
   } else {
     serveStatic(app);
-  }
-
-  // When running on Vercel (serverless), do not start a listener — export the app instead
-  if (process.env.VERCEL) {
-    return;
   }
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
