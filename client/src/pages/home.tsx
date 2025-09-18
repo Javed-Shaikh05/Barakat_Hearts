@@ -6,9 +6,11 @@ import GameificationSection from "@/components/gamification-section";
 import RecentMessages from "@/components/recent-messages";
 import BottomNavigation from "@/components/bottom-navigation";
 import SurpriseModal from "@/components/surprise-modal";
+import CreateMessageModal from "@/components/create-message-modal";
 
 export default function Home() {
   const [showSurpriseModal, setShowSurpriseModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [activeTab, setActiveTab] = useState("home");
 
   return (
@@ -26,11 +28,20 @@ export default function Home() {
       
       <RecentMessages />
       
-      <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <BottomNavigation 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab}
+        onCreateMessage={() => setShowCreateModal(true)}
+      />
       
       <SurpriseModal 
         isOpen={showSurpriseModal} 
         onClose={() => setShowSurpriseModal(false)} 
+      />
+      
+      <CreateMessageModal 
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
       />
       
       {/* Bottom padding for navigation */}

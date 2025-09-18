@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertFavoriteSchema } from "@shared/schema";
+import { insertFavoriteSchema, insertMessageSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -90,6 +90,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(achievements);
     } catch (error) {
       res.status(500).json({ message: "Failed to get achievements" });
+    }
+  });
+
+  // Create custom message
+  app.post("/api/messages", async (req, res) => {
+    try {
+      const validatedData = insertMessageSchema.parse(req.body);
+      const message = await storage.createMessage(validatedData);
+      
+      // Award hearts for creating custom message
+      await storage.incrementHearts(10);
+      
+      res.json(message);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid message data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create message" });
     }
   });
 
