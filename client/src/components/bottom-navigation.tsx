@@ -1,19 +1,17 @@
 import { motion } from "framer-motion";
-import { Home, Mail, TrendingUp, Heart, Plus } from "lucide-react";
+import { Home, Mail, TrendingUp, Heart } from "lucide-react";
 
 interface BottomNavigationProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  onCreateMessage?: () => void;
 }
 
-export default function BottomNavigation({ activeTab, onTabChange, onCreateMessage }: BottomNavigationProps) {
+export default function BottomNavigation({ activeTab, onTabChange }: BottomNavigationProps) {
   const navItems = [
     { id: "home", icon: Home, label: "Home" },
     { id: "messages", icon: Mail, label: "Messages" },
-    { id: "create", icon: Plus, label: "Create", action: onCreateMessage },
     { id: "stats", icon: TrendingUp, label: "Stats" },
-    { id: "love", icon: Heart, label: "Love" },
+    { id: "love", icon: Heart, label: "Duas" },
   ];
 
   return (
@@ -32,7 +30,7 @@ export default function BottomNavigation({ activeTab, onTabChange, onCreateMessa
                     ? "text-emerald-600" 
                     : "text-emerald-700 opacity-60 hover:text-emerald-600 hover:opacity-100"
                 }`}
-                onClick={() => item.action ? item.action() : onTabChange(item.id)}
+                onClick={() => onTabChange(item.id)}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 data-testid={`nav-${item.id}`}

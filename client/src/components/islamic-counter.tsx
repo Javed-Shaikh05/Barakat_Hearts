@@ -37,21 +37,22 @@ export default function IslamicCounter() {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.6, ease: "easeOut" }}
-      whileHover={{ scale: 1.05, y: -5 }}
+      whileHover={{ scale: 1.02 }}
       data-testid={`counter-${label.toLowerCase()}`}
     >
       <div className="flex items-center justify-center mb-3">
         <Icon className="w-6 h-6 text-emerald-600" />
       </div>
-      <motion.div 
-        className="text-2xl md:text-4xl font-bold text-emerald-800 mb-2"
-        key={value}
-        initial={{ scale: 1.2 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        {value.toString().padStart(2, '0')}
-      </motion.div>
+      <div className="text-2xl md:text-4xl font-bold text-emerald-800 mb-2 min-h-[3rem] md:min-h-[4rem] flex items-center justify-center">
+        <motion.span
+          key={`${label}-${value}`}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+        >
+          {value.toString().padStart(2, '0')}
+        </motion.span>
+      </div>
       <div className="text-xs md:text-sm text-emerald-600 font-medium">
         {label}
       </div>
