@@ -1,4 +1,7 @@
-import { type Message, type InsertMessage, type UserStats, type InsertUserStats, type Favorite, type InsertFavorite, type Achievement, type InsertAchievement } from "@shared/schema";
+import { type Message, type InsertMessage, type UserStats, type InsertUserStats, type Favorite, type InsertFavorite, type Achievement, type InsertAchievement, messages, userStats, favorites, achievements } from "@shared/schema";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
+import { eq, desc } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -25,35 +28,27 @@ export interface IStorage {
   unlockAchievement(name: string): Promise<Achievement | undefined>;
 }
 
-export class MemStorage implements IStorage {
-  private messages: Map<string, Message>;
-  private userStats: UserStats;
-  private favorites: Map<string, Favorite>;
-  private achievements: Map<string, Achievement>;
-  private viewedMessages: Set<string>;
+export class DatabaseStorage implements IStorage {
+  private db;
+  private initialized = false;
 
   constructor() {
-    this.messages = new Map();
-    this.favorites = new Map();
-    this.achievements = new Map();
-    this.viewedMessages = new Set();
-    
-    // Initialize user stats
-    this.userStats = {
-      id: randomUUID(),
-      totalHearts: 247,
-      currentStreak: 12,
-      lastVisit: new Date(),
-      messagesViewed: 142,
-      favoritesCount: 8,
-    };
-    
-    // Initialize with romantic messages
-    this.initializeMessages();
-    this.initializeAchievements();
+    const sql = neon(process.env.DATABASE_URL!);
+    this.db = drizzle(sql);
   }
 
-  private initializeMessages() {
+  private async ensureInitialized() {
+    if (this.initialized) return;
+    await this.initializeData();
+    this.initialized = true;
+  }
+
+  private async initializeData() {
+    // Check if we already have data
+    const existingMessages = await this.db.select().from(messages).limit(1);
+    if (existingMessages.length > 0) return;
+
+    // Initialize with romantic messages
     const romanticMessages = [
       {
         title: "Good Morning, Beautiful ✨",
@@ -113,18 +108,19 @@ export class MemStorage implements IStorage {
       },
     ];
 
-    romanticMessages.forEach((msg, index) => {
-      const id = randomUUID();
-      const message: Message = {
-        ...msg,
-        id,
-        createdAt: new Date(Date.now() - (index * 24 * 60 * 60 * 1000)), // Spread over past days
-      };
-      this.messages.set(id, message);
-    });
-  }
+    // Insert messages
+    await this.db.insert(messages).values(romanticMessages);
 
-  private initializeAchievements() {
+    // Initialize user stats
+    await this.db.insert(userStats).values({
+      totalHearts: 247,
+      currentStreak: 12,
+      lastVisit: new Date(),
+      messagesViewed: 142,
+      favoritesCount: 8,
+    });
+
+    // Initialize achievements
     const achievementsList = [
       {
         name: "First Love",
@@ -148,127 +144,148 @@ export class MemStorage implements IStorage {
         name: "Memory Keeper",
         description: "Save 5 favorite messages",
         icon: "fa-bookmark",
-        unlockedAt: null, // Not yet unlocked
+        unlockedAt: null,
       },
     ];
 
-    achievementsList.forEach(achievement => {
-      const id = randomUUID();
-      this.achievements.set(id, { ...achievement, id });
-    });
+    await this.db.insert(achievements).values(achievementsList);
   }
 
   async getRandomMessage(): Promise<Message | undefined> {
-    const messagesArray = Array.from(this.messages.values());
-    if (messagesArray.length === 0) return undefined;
+    await this.ensureInitialized();
+    const allMessages = await this.db.select().from(messages);
+    if (allMessages.length === 0) return undefined;
     
-    const randomIndex = Math.floor(Math.random() * messagesArray.length);
-    return messagesArray[randomIndex];
+    const randomIndex = Math.floor(Math.random() * allMessages.length);
+    return allMessages[randomIndex];
   }
 
   async getMessageById(id: string): Promise<Message | undefined> {
-    return this.messages.get(id);
+    await this.ensureInitialized();
+    const result = await this.db.select().from(messages).where(eq(messages.id, id)).limit(1);
+    return result[0];
   }
 
   async getAllMessages(): Promise<Message[]> {
-    return Array.from(this.messages.values()).sort((a, b) => 
-      new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
-    );
+    await this.ensureInitialized();
+    return await this.db.select().from(messages).orderBy(desc(messages.createdAt));
   }
 
   async getRecentMessages(limit: number = 5): Promise<Message[]> {
-    const allMessages = await this.getAllMessages();
-    return allMessages.slice(0, limit);
+    await this.ensureInitialized();
+    return await this.db.select().from(messages).orderBy(desc(messages.createdAt)).limit(limit);
   }
 
   async createMessage(insertMessage: InsertMessage): Promise<Message> {
-    const id = randomUUID();
-    const message: Message = {
-      ...insertMessage,
-      id,
-      createdAt: new Date(),
-    };
-    this.messages.set(id, message);
-    return message;
+    await this.ensureInitialized();
+    const result = await this.db.insert(messages).values(insertMessage).returning();
+    return result[0];
   }
 
   async getUserStats(): Promise<UserStats> {
-    return { ...this.userStats };
+    await this.ensureInitialized();
+    const result = await this.db.select().from(userStats).limit(1);
+    return result[0] || {
+      id: randomUUID(),
+      totalHearts: 0,
+      currentStreak: 0,
+      lastVisit: null,
+      messagesViewed: 0,
+      favoritesCount: 0,
+    };
   }
 
   async updateUserStats(stats: Partial<UserStats>): Promise<UserStats> {
-    this.userStats = { ...this.userStats, ...stats };
-    return { ...this.userStats };
+    await this.ensureInitialized();
+    const existing = await this.getUserStats();
+    const result = await this.db.update(userStats)
+      .set(stats)
+      .where(eq(userStats.id, existing.id))
+      .returning();
+    return result[0] || existing;
   }
 
   async incrementHearts(amount: number): Promise<UserStats> {
-    this.userStats.totalHearts = (this.userStats.totalHearts || 0) + amount;
-    return { ...this.userStats };
+    await this.ensureInitialized();
+    const existing = await this.getUserStats();
+    return await this.updateUserStats({
+      totalHearts: (existing.totalHearts || 0) + amount
+    });
   }
 
   async updateStreak(): Promise<UserStats> {
+    await this.ensureInitialized();
     const now = new Date();
-    const lastVisit = this.userStats.lastVisit;
+    const existing = await this.getUserStats();
+    const lastVisit = existing.lastVisit;
+    
+    let newStreak = existing.currentStreak || 0;
     
     if (lastVisit) {
       const daysSinceLastVisit = Math.floor((now.getTime() - lastVisit.getTime()) / (1000 * 60 * 60 * 24));
       
       if (daysSinceLastVisit === 1) {
         // Consecutive day - increment streak
-        this.userStats.currentStreak = (this.userStats.currentStreak || 0) + 1;
+        newStreak = (existing.currentStreak || 0) + 1;
       } else if (daysSinceLastVisit > 1) {
         // Broke streak - reset to 1
-        this.userStats.currentStreak = 1;
+        newStreak = 1;
       }
       // If same day (daysSinceLastVisit === 0), don't change streak
     } else {
       // First visit
-      this.userStats.currentStreak = 1;
+      newStreak = 1;
     }
     
-    this.userStats.lastVisit = now;
-    return { ...this.userStats };
+    return await this.updateUserStats({
+      currentStreak: newStreak,
+      lastVisit: now
+    });
   }
 
   async addToFavorites(messageId: string): Promise<Favorite> {
-    const id = randomUUID();
-    const favorite: Favorite = {
-      id,
-      messageId,
-      createdAt: new Date(),
-    };
-    this.favorites.set(id, favorite);
-    this.userStats.favoritesCount = (this.userStats.favoritesCount || 0) + 1;
+    await this.ensureInitialized();
+    const result = await this.db.insert(favorites).values({ messageId }).returning();
+    const favorite = result[0];
+    
+    // Update favorites count
+    const existing = await this.getUserStats();
+    await this.updateUserStats({
+      favoritesCount: (existing.favoritesCount || 0) + 1
+    });
+    
     return favorite;
   }
 
   async getFavorites(): Promise<Favorite[]> {
-    return Array.from(this.favorites.values());
+    await this.ensureInitialized();
+    return await this.db.select().from(favorites).orderBy(desc(favorites.createdAt));
   }
 
   async removeFavorite(messageId: string): Promise<void> {
-    for (const [id, favorite] of this.favorites.entries()) {
-      if (favorite.messageId === messageId) {
-        this.favorites.delete(id);
-        this.userStats.favoritesCount = Math.max((this.userStats.favoritesCount || 0) - 1, 0);
-        break;
-      }
-    }
+    await this.ensureInitialized();
+    await this.db.delete(favorites).where(eq(favorites.messageId, messageId));
+    
+    // Update favorites count
+    const existing = await this.getUserStats();
+    await this.updateUserStats({
+      favoritesCount: Math.max((existing.favoritesCount || 0) - 1, 0)
+    });
   }
 
   async getAchievements(): Promise<Achievement[]> {
-    return Array.from(this.achievements.values());
+    await this.ensureInitialized();
+    return await this.db.select().from(achievements);
   }
 
   async unlockAchievement(name: string): Promise<Achievement | undefined> {
-    for (const achievement of this.achievements.values()) {
-      if (achievement.name === name && !achievement.unlockedAt) {
-        achievement.unlockedAt = new Date();
-        return achievement;
-      }
-    }
-    return undefined;
+    await this.ensureInitialized();
+    const result = await this.db.update(achievements)
+      .set({ unlockedAt: new Date() })
+      .where(eq(achievements.name, name))
+      .returning();
+    return result[0];
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
