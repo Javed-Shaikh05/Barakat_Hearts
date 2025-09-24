@@ -4,7 +4,13 @@ import { Heart, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RosePetals from "@/components/rose-petals";
 
-export default function IslamicWelcomePopup() {
+interface IslamicWelcomePopupProps {
+  onClose?: () => void;
+}
+
+export default function IslamicWelcomePopup({
+  onClose,
+}: IslamicWelcomePopupProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   const islamicGreetings = [
@@ -35,16 +41,13 @@ export default function IslamicWelcomePopup() {
   );
 
   useEffect(() => {
-    // Show popup after a short delay when component mounts
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 1500);
-
-    return () => clearTimeout(timer);
+    // Show popup immediately when component mounts
+    setIsVisible(true);
   }, []);
 
   const handleClose = () => {
     setIsVisible(false);
+    onClose?.();
   };
 
   return (
@@ -55,10 +58,11 @@ export default function IslamicWelcomePopup() {
           <RosePetals isVisible={isVisible} count={40} />
 
           <motion.div
-            className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-[55] p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-md flex items-center justify-center z-[55] p-4"
+            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            animate={{ opacity: 1, backdropFilter: "blur(8px)" }}
+            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            transition={{ duration: 0.8 }}
             data-testid="islamic-welcome-popup"
           >
             <motion.div
