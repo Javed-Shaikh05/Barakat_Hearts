@@ -238,11 +238,13 @@ export default function MarriageInvitation({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.3, duration: 0.6 }}
           >
-            <div className="bg-gradient-to-r from-romantic-rose to-romantic-pink text-white py-3 px-6 rounded-xl font-semibold shadow-lg">
-              <div className="flex items-center justify-center space-x-2">
-                <span>💕</span>
-                <span>May Allah Bless Our Union</span>
-                <span>💕</span>
+            <div className="bg-gradient-to-r from-romantic-rose to-romantic-pink py-4 px-8 rounded-xl font-bold text-lg shadow-xl border-2 border-romantic-pink border-opacity-50">
+              <div className="flex items-center justify-center space-x-3">
+                <span className="text-2xl">💕</span>
+                <span className="text-romantic-grey font-bold drop-shadow-lg">
+                  May Allah Bless Our Union
+                </span>
+                <span className="text-2xl">💕</span>
               </div>
             </div>
           </motion.div>
