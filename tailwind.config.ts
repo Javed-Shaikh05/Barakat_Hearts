@@ -61,6 +61,15 @@ export default {
           border: "var(--sidebar-border)",
           ring: "var(--sidebar-ring)",
         },
+        maroon: {
+          DEFAULT: "var(--maroon)",
+          light: "var(--maroon-light)",
+          dark: "var(--maroon-dark)",
+        },
+        "off-white": {
+          DEFAULT: "var(--off-white)",
+          dark: "var(--off-white-dark)",
+        },
         romantic: {
           pink: "var(--romantic-pink)",
           rose: "var(--romantic-rose)",

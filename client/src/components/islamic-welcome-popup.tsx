@@ -66,7 +66,7 @@ export default function IslamicWelcomePopup({
             data-testid="islamic-welcome-popup"
           >
             <motion.div
-              className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl p-6 md:p-8 max-w-sm md:max-w-md w-full text-center relative border-2 border-emerald-200 shadow-2xl"
+              className="bg-gradient-to-br from-off-white to-off-white-dark rounded-3xl p-6 md:p-8 max-w-sm md:max-w-md w-full text-center relative border-2 border-maroon/20 shadow-2xl"
               initial={{ opacity: 0, scale: 0.7, y: 50 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.7, y: 50 }}
@@ -75,14 +75,14 @@ export default function IslamicWelcomePopup({
             >
               <button
                 onClick={handleClose}
-                className="absolute top-4 right-4 text-emerald-600 hover:text-emerald-800 transition-colors"
+                className="absolute top-4 right-4 text-maroon hover:text-maroon-dark transition-colors"
                 data-testid="button-close-welcome"
               >
                 <X className="w-5 h-5" />
               </button>
 
               <motion.div
-                className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center"
+                className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-maroon to-maroon-dark rounded-full flex items-center justify-center"
                 animate={{
                   rotate: [0, 10, -10, 0],
                   scale: [1, 1.1, 1],
@@ -98,7 +98,7 @@ export default function IslamicWelcomePopup({
               </motion.div>
 
               <motion.h2
-                className="text-xl md:text-2xl font-bold text-emerald-800 mb-3"
+                className="text-xl md:text-2xl font-bold text-maroon mb-3"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.4 }}
@@ -107,7 +107,7 @@ export default function IslamicWelcomePopup({
               </motion.h2>
 
               <motion.p
-                className="text-emerald-700 text-base md:text-lg mb-6 leading-relaxed"
+                className="text-maroon text-base md:text-lg mb-6 leading-relaxed"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.4 }}
@@ -116,7 +116,7 @@ export default function IslamicWelcomePopup({
               </motion.p>
 
               <motion.div
-                className="flex items-center justify-center mb-6 text-emerald-600"
+                className="flex items-center justify-center mb-6 text-maroon"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5, duration: 0.4 }}
@@ -135,7 +135,7 @@ export default function IslamicWelcomePopup({
               >
                 <Button
                   onClick={handleClose}
-                  className="bg-emerald-600 text-white px-8 py-3 rounded-full font-medium transition-all hover:bg-emerald-700 hover:scale-105 shadow-lg"
+                  className="bg-maroon text-white px-8 py-3 rounded-full font-medium transition-all hover:bg-maroon-dark hover:scale-105 shadow-lg"
                   data-testid="button-continue"
                 >
                   <Heart className="mr-2 w-4 h-4" />

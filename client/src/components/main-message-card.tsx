@@ -96,8 +96,8 @@ export default function MainMessageCard({
       <main className="relative z-10 px-4 md:px-6 pb-8">
         <div className="max-w-4xl mx-auto">
           <div className="glass-effect rounded-3xl p-8 md:p-12 mb-8 text-center">
-            <div className="text-emerald-700">
-              <Heart className="w-16 h-16 mx-auto mb-4 text-emerald-600" />
+            <div className="text-maroon">
+              <Heart className="w-16 h-16 mx-auto mb-4 text-maroon" />
               <p className="text-lg">
                 No messages available right now. Please try again later.
               </p>
@@ -122,16 +122,16 @@ export default function MainMessageCard({
           whileHover={{ y: -5 }}
         >
           <motion.div
-            className="w-20 h-20 md:w-24 md:h-24 mx-auto mb-4 md:mb-6 bg-emerald-100 rounded-full flex items-center justify-center"
+            className="w-20 h-20 md:w-24 md:h-24 mx-auto mb-4 md:mb-6 bg-maroon/10 rounded-full flex items-center justify-center"
             animate={{ scale: [1, 1.1, 1] }}
             transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
             data-testid="message-icon"
           >
-            <Heart className="text-emerald-600 text-3xl md:text-4xl fill-current" />
+            <Heart className="text-maroon text-3xl md:text-4xl fill-current" />
           </motion.div>
 
           <motion.h2
-            className="font-script text-2xl md:text-3xl lg:text-4xl text-emerald-700 mb-4 md:mb-6"
+            className="font-script text-2xl md:text-3xl lg:text-4xl text-maroon mb-4 md:mb-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.6 }}
@@ -141,7 +141,7 @@ export default function MainMessageCard({
           </motion.h2>
 
           <motion.blockquote
-            className="font-serif text-base md:text-lg lg:text-xl text-emerald-800 leading-relaxed mb-6 md:mb-8 max-w-2xl mx-auto px-4 md:px-0"
+            className="font-serif text-base md:text-lg lg:text-xl text-maroon leading-relaxed mb-6 md:mb-8 max-w-2xl mx-auto px-4 md:px-0"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.6 }}
@@ -150,7 +150,7 @@ export default function MainMessageCard({
             "{message.content}"
           </motion.blockquote>
 
-          <div className="flex items-center justify-center space-x-4 text-sm text-emerald-600 opacity-75 mb-6 md:mb-8">
+          <div className="flex items-center justify-center space-x-4 text-sm text-maroon opacity-75 mb-6 md:mb-8">
             <span data-testid="message-number">
               💕 Message #{messageNumber}
             </span>
@@ -173,7 +173,7 @@ export default function MainMessageCard({
           >
             <Button
               onClick={handleNewMessage}
-              className="bg-emerald-600 text-white px-4 md:px-6 py-2 md:py-3 rounded-full font-medium transition-all hover:bg-emerald-700 hover:scale-105 shadow-lg text-sm md:text-base"
+              className="bg-maroon text-white px-4 md:px-6 py-2 md:py-3 rounded-full font-medium transition-all hover:bg-maroon-dark hover:scale-105 shadow-lg text-sm md:text-base"
               disabled={isLoading}
               data-testid="button-new-message"
             >
@@ -184,7 +184,7 @@ export default function MainMessageCard({
             <Button
               onClick={handleFavorite}
               variant="outline"
-              className="bg-white text-emerald-600 px-4 md:px-6 py-2 md:py-3 rounded-full font-medium transition-all hover:bg-emerald-50 border-2 border-emerald-600 hover:scale-105 text-sm md:text-base"
+              className="bg-white text-maroon px-4 md:px-6 py-2 md:py-3 rounded-full font-medium transition-all hover:bg-maroon/10 border-2 border-maroon hover:scale-105 text-sm md:text-base"
               disabled={favoriteMutation.isPending}
               data-testid="button-favorite"
             >
